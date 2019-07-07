@@ -71,7 +71,16 @@ export class MyApp {
             
             ($("#exampleModal") as any).modal();
             setTimeout(() => {
+                //focus on textbox
                 $("#txtName").focus();
+                //prevent submit on enter 
+                $('#txtName').bind("keypress", function(e) {
+                    if (e.keyCode == 13) {               
+                      e.preventDefault();
+                      myApp.showApp();
+                      return false;
+                    }
+                  });
             }, 500);
 
             //init tooltips
@@ -110,7 +119,9 @@ export class MyApp {
             let isvalid = form.checkValidity();
             if (isvalid) {
                 document.getElementById('divMain').style.display = 'block';
-                this.name = $("#txtName").val() as string;
+                let name = $("#txtName").val() as string;
+                name = name.replace(/[^a-zA-Z ]/g,''); //remove illegal characters
+                this.name = name;
                 this.update();
                 //ping server every 5 seconds
                 setInterval(() => this.update(), 5000);
@@ -274,25 +285,33 @@ export class MyApp {
 
         this.showMessages()
         this.drawCoAuthoringMarkers();
+        this.refreshTooltips();
         
     }
 
-
     decorations:string[] = [];
+
     drawCoAuthoringMarkers(){
         var editors = [];
+        var glyphTooltips = [];
+
         if (this.num_editors>0){
             this.users.forEach(user => {
                 if (user.is_editor && user.id!=this.id)
                 {
+                    let glyph_tag = 'glyph' + user.id;
                     editors.push({
                         range: new monaco.Range(user.line_number,1,user.line_number,1),
                         options: {
                             isWholeLine: true,
                             className: 'myContentClass',
-                            glyphMarginClassName: 'myGlyphMarginClass'
+                            glyphMarginClassName: 'myGlyphMarginClass ' + glyph_tag
                         }
                     });
+                    glyphTooltips.push({
+                        id: glyph_tag,
+                        title: user.name
+                    })
                 }
             });
             this.decorations = this.editor.deltaDecorations(this.decorations, editors);
@@ -301,6 +320,17 @@ export class MyApp {
         {
             this.decorations = this.editor.deltaDecorations(this.decorations, editors);
         }
+
+        //glyph tooltips
+        setTimeout(() => {
+            glyphTooltips.forEach((glyph)=>{
+                $('.' + glyph.id).attr('data-placement', 'bottom');
+                $('.' + glyph.id).attr('title', glyph.title);
+            });
+            ($('.myGlyphMarginClass') as any).tooltip(); 
+        }, 500);
+
+
     }
 
     
@@ -333,8 +363,6 @@ export class MyApp {
         this.num_editors = result.num_editors;
         this.num_viewers = result.num_viewers - result.num_editors;
         this.users = result.users;
-
-        this.refreshTooltips();
 
 
         
@@ -417,7 +445,6 @@ export class MyApp {
         this.users = result.users;
         this.current_version = result.current_version;
 
-        this.refreshTooltips();
 
     }
 

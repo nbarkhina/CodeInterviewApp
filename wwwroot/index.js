@@ -63,7 +63,16 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 document.getElementById('loadingDiv').style.display = 'none';
                 $("#exampleModal").modal();
                 setTimeout(() => {
+                    //focus on textbox
                     $("#txtName").focus();
+                    //prevent submit on enter 
+                    $('#txtName').bind("keypress", function (e) {
+                        if (e.keyCode == 13) {
+                            e.preventDefault();
+                            myApp.showApp();
+                            return false;
+                        }
+                    });
                 }, 500);
                 //init tooltips
                 // ($('[data-toggle="tooltip"]') as any).tooltip();
@@ -94,7 +103,9 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 let isvalid = form.checkValidity();
                 if (isvalid) {
                     document.getElementById('divMain').style.display = 'block';
-                    this.name = $("#txtName").val();
+                    let name = $("#txtName").val();
+                    name = name.replace(/[^a-zA-Z ]/g, ''); //remove illegal characters
+                    this.name = name;
                     this.update();
                     //ping server every 5 seconds
                     setInterval(() => this.update(), 5000);
@@ -222,20 +233,27 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 this.ready_to_update = true;
                 this.showMessages();
                 this.drawCoAuthoringMarkers();
+                this.refreshTooltips();
             });
         }
         drawCoAuthoringMarkers() {
             var editors = [];
+            var glyphTooltips = [];
             if (this.num_editors > 0) {
                 this.users.forEach(user => {
                     if (user.is_editor && user.id != this.id) {
+                        let glyph_tag = 'glyph' + user.id;
                         editors.push({
                             range: new monaco.Range(user.line_number, 1, user.line_number, 1),
                             options: {
                                 isWholeLine: true,
                                 className: 'myContentClass',
-                                glyphMarginClassName: 'myGlyphMarginClass'
+                                glyphMarginClassName: 'myGlyphMarginClass ' + glyph_tag
                             }
+                        });
+                        glyphTooltips.push({
+                            id: glyph_tag,
+                            title: user.name
                         });
                     }
                 });
@@ -244,6 +262,14 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
             else {
                 this.decorations = this.editor.deltaDecorations(this.decorations, editors);
             }
+            //glyph tooltips
+            setTimeout(() => {
+                glyphTooltips.forEach((glyph) => {
+                    $('.' + glyph.id).attr('data-placement', 'bottom');
+                    $('.' + glyph.id).attr('title', glyph.title);
+                });
+                $('.myGlyphMarginClass').tooltip();
+            }, 500);
         }
         showMessages() {
             if (this.num_editors > 1 && this.edit_mode && !this.mobile_device)
@@ -268,7 +294,6 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 this.num_editors = result.num_editors;
                 this.num_viewers = result.num_viewers - result.num_editors;
                 this.users = result.users;
-                this.refreshTooltips();
                 //don't overwrite if nothing changed
                 if (this.editor.getValue() != result.content) {
                     //also don't update the code in the unlikely chance that the editor changed
@@ -334,7 +359,6 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 this.num_viewers = result.num_viewers - result.num_editors;
                 this.users = result.users;
                 this.current_version = result.current_version;
-                this.refreshTooltips();
             });
         }
     }
