@@ -32,7 +32,7 @@ namespace dotnetcore.Controllers
         string CONN_STRING = "";
 
 
-        private void UpdateUsers(int ID, bool is_editor, int line_number)
+        private void UpdateUsers(int ID, string name, bool is_editor, int line_number)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace dotnetcore.Controllers
                 }
                 if (!found)
                     Users.Add(new User() { id = ID, last_updated = DateTime.Now,
-                        is_editor = is_editor, line_number = line_number });
+                        is_editor = is_editor, line_number = line_number, name=name });
                 foreach (var user in to_remove)
                 {
                     Users.Remove(user);
@@ -66,7 +66,7 @@ namespace dotnetcore.Controllers
 
         [HttpGet("GetMonacoContent")]
         public MonacoContent GetMonacoContent(string password, int id, bool is_editing, 
-            int line_number)
+            int line_number,string name)
         {
             // Console.WriteLine("Hello");
             // Console.WriteLine("ID: " + id);
@@ -77,7 +77,7 @@ namespace dotnetcore.Controllers
                 return_content.content = "Wrong Password";
                 return return_content;
             }
-            UpdateUsers(id, is_editing, line_number);
+            UpdateUsers(id, name, is_editing, line_number);
             return_content.num_viewers = Users.Count;
             return_content.num_editors = Users.Where((viewer) => viewer.is_editor).Count();
             return_content.users = Users;
@@ -99,7 +99,7 @@ namespace dotnetcore.Controllers
                 return_content.content = "Wrong Password";
                 return return_content;
             }
-            UpdateUsers(monContent.id, true,monContent.line_number);
+            UpdateUsers(monContent.id, monContent.name, true,monContent.line_number);
             return_content.num_viewers = Users.Count;
             return_content.num_editors = Users.Where((viewer) => viewer.is_editor).Count();
             return_content.users = Users;

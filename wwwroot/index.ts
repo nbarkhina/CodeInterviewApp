@@ -15,6 +15,7 @@ export class MyApp {
     stop_updates:boolean = false; //running and stopped button
     message:string='';
     id:number = 0;
+    name:string = '';
     num_viewers:number = 0;
     num_editors:number = 0;
     min_height:number = 400;
@@ -65,20 +66,60 @@ export class MyApp {
             }
             myApp.editor = monaco.editor.create(document.getElementById('monContainer'), options);
 
-            myApp.update();
-
-            document.getElementById('loadingDiv').style.display='none';
-            document.getElementById('divMain').style.display='block';
             
-            //init tooltips
-            ($('[data-toggle="tooltip"]') as any).tooltip()
+            document.getElementById('loadingDiv').style.display='none';
+            
+            ($("#exampleModal") as any).modal();
+            setTimeout(() => {
+                $("#txtName").focus();
+            }, 500);
 
-            //ping server every 5 seconds
-            setInterval(() => myApp.update(), 5000);
+            //init tooltips
+            // ($('[data-toggle="tooltip"]') as any).tooltip();
+            
 
         });
 
 
+    }
+
+    initializeTooltips(){
+        ($('[data-toggle="tooltip"]') as any).tooltip();
+    }
+
+    refreshTooltips(){
+        let viewer_names = '';
+        let editor_names  = '';
+        this.users.forEach((user)=>{ 
+            if (user.is_editor)
+                editor_names += user.name + ', ';
+            else
+                viewer_names += user.name + ', ';
+        });
+
+        if (viewer_names.endsWith(', ')) viewer_names = viewer_names.substr(0,viewer_names.length-2);
+        if (editor_names.endsWith(', ')) editor_names = editor_names.substr(0,editor_names.length-2);
+        
+        $('#spanViewers').attr('data-original-title', viewer_names);
+        $('#spanEditors').attr('data-original-title', editor_names);
+    }
+
+    showApp() {
+        let form = document.getElementById('nameForm') as HTMLFormElement;
+        {
+            let isvalid = form.checkValidity();
+            if (isvalid) {
+                document.getElementById('divMain').style.display = 'block';
+                this.name = $("#txtName").val() as string;
+                this.update();
+                //ping server every 5 seconds
+                setInterval(() => this.update(), 5000);
+
+                ($('#exampleModal') as any).modal('hide');
+                this.initializeTooltips();
+            }
+            form.classList.add('was-validated');
+        }
     }
 
 
@@ -126,7 +167,7 @@ export class MyApp {
     }
 
     setId() {
-        this.id = Math.floor(Math.random() * Math.floor(1000000))
+        this.id = Math.floor(Math.random() * Math.floor(1000000));
         console.log('ID: ' + this.id);
       }
 
@@ -284,13 +325,19 @@ export class MyApp {
 
         let current_content = this.editor.getValue();
         var result = await $.get('api/values/GetMonacoContent?password=' + this.password + '&id=' + this.id 
-            + '&is_editing=' + this.edit_mode + '&line_number=' + this.editor.getPosition().lineNumber) as MonacoContent;
+            + '&is_editing=' + this.edit_mode + '&line_number=' + this.editor.getPosition().lineNumber
+            + '&name=' + this.name) as MonacoContent;
         
         
 
         this.num_editors = result.num_editors;
         this.num_viewers = result.num_viewers - result.num_editors;
         this.users = result.users;
+
+        this.refreshTooltips();
+
+
+        
 
         //don't overwrite if nothing changed
         if (this.editor.getValue()!=result.content)
@@ -356,6 +403,7 @@ export class MyApp {
         mon_content.current_version = this.current_version;
         mon_content.password = this.password;
         mon_content.id = this.id;
+        mon_content.name = this.name;
         mon_content.line_number = this.editor.getPosition().lineNumber;
         var result = await $.ajax({
             url: 'api/values/PostMonacoContent',
@@ -368,6 +416,8 @@ export class MyApp {
         this.num_viewers = result.num_viewers - result.num_editors;
         this.users = result.users;
         this.current_version = result.current_version;
+
+        this.refreshTooltips();
 
     }
 

@@ -19,6 +19,7 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
             this.stop_updates = false; //running and stopped button
             this.message = '';
             this.id = 0;
+            this.name = '';
             this.num_viewers = 0;
             this.num_editors = 0;
             this.min_height = 400;
@@ -52,20 +53,56 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 options.glyphMargin = true;
                 if (myApp.mobile_device) {
                     options.glyphMargin = false;
+                    options.contextmenu = false;
                     // options.wordWrap = "on";
                     // options.minimap = <monaco.editor.IEditorMinimapOptions>{
                     //     enabled: false
                     // }
                 }
                 myApp.editor = monaco.editor.create(document.getElementById('monContainer'), options);
-                myApp.update();
                 document.getElementById('loadingDiv').style.display = 'none';
-                document.getElementById('divMain').style.display = 'block';
+                $("#exampleModal").modal();
+                setTimeout(() => {
+                    $("#txtName").focus();
+                }, 500);
                 //init tooltips
-                $('[data-toggle="tooltip"]').tooltip();
-                //ping server every 5 seconds
-                setInterval(() => myApp.update(), 5000);
+                // ($('[data-toggle="tooltip"]') as any).tooltip();
             });
+        }
+        initializeTooltips() {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+        refreshTooltips() {
+            let viewer_names = '';
+            let editor_names = '';
+            this.users.forEach((user) => {
+                if (user.is_editor)
+                    editor_names += user.name + ', ';
+                else
+                    viewer_names += user.name + ', ';
+            });
+            if (viewer_names.endsWith(', '))
+                viewer_names = viewer_names.substr(0, viewer_names.length - 2);
+            if (editor_names.endsWith(', '))
+                editor_names = editor_names.substr(0, editor_names.length - 2);
+            $('#spanViewers').attr('data-original-title', viewer_names);
+            $('#spanEditors').attr('data-original-title', editor_names);
+        }
+        showApp() {
+            let form = document.getElementById('nameForm');
+            {
+                let isvalid = form.checkValidity();
+                if (isvalid) {
+                    document.getElementById('divMain').style.display = 'block';
+                    this.name = $("#txtName").val();
+                    this.update();
+                    //ping server every 5 seconds
+                    setInterval(() => this.update(), 5000);
+                    $('#exampleModal').modal('hide');
+                    this.initializeTooltips();
+                }
+                form.classList.add('was-validated');
+            }
         }
         calculateInitialHeight() {
             this.height = window.innerHeight - 400;
@@ -226,10 +263,12 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 //merging content even though you should've had latest
                 let current_content = this.editor.getValue();
                 var result = yield $.get('api/values/GetMonacoContent?password=' + this.password + '&id=' + this.id
-                    + '&is_editing=' + this.edit_mode + '&line_number=' + this.editor.getPosition().lineNumber);
+                    + '&is_editing=' + this.edit_mode + '&line_number=' + this.editor.getPosition().lineNumber
+                    + '&name=' + this.name);
                 this.num_editors = result.num_editors;
                 this.num_viewers = result.num_viewers - result.num_editors;
                 this.users = result.users;
+                this.refreshTooltips();
                 //don't overwrite if nothing changed
                 if (this.editor.getValue() != result.content) {
                     //also don't update the code in the unlikely chance that the editor changed
@@ -283,6 +322,7 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 mon_content.current_version = this.current_version;
                 mon_content.password = this.password;
                 mon_content.id = this.id;
+                mon_content.name = this.name;
                 mon_content.line_number = this.editor.getPosition().lineNumber;
                 var result = yield $.ajax({
                     url: 'api/values/PostMonacoContent',
@@ -294,6 +334,7 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 this.num_viewers = result.num_viewers - result.num_editors;
                 this.users = result.users;
                 this.current_version = result.current_version;
+                this.refreshTooltips();
             });
         }
     }

@@ -6,5 +6,6 @@ public class User
         public bool is_editor = false;
         public DateTime last_updated;
         public int line_number;
+        public string name;
 
     }

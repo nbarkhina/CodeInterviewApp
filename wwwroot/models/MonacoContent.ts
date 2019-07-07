@@ -2,6 +2,7 @@ import { User } from "./User";
 
 export class MonacoContent {
     id: number;
+    name: string;
     content: string;
     password: string;
     num_viewers: number;
