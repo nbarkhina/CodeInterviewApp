@@ -238,22 +238,17 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
         }
         drawCoAuthoringMarkers() {
             var editors = [];
-            var glyphTooltips = [];
             if (this.num_editors > 0) {
                 this.users.forEach(user => {
                     if (user.is_editor && user.id != this.id) {
-                        let glyph_tag = 'glyph' + user.id;
                         editors.push({
                             range: new monaco.Range(user.line_number, 1, user.line_number, 1),
                             options: {
                                 isWholeLine: true,
                                 className: 'myContentClass',
-                                glyphMarginClassName: 'myGlyphMarginClass ' + glyph_tag
+                                glyphMarginClassName: 'myGlyphMarginClass',
+                                glyphMarginHoverMessage: { value: '**Editor:** ' + user.name }
                             }
-                        });
-                        glyphTooltips.push({
-                            id: glyph_tag,
-                            title: user.name
                         });
                     }
                 });
@@ -262,14 +257,6 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
             else {
                 this.decorations = this.editor.deltaDecorations(this.decorations, editors);
             }
-            //glyph tooltips
-            setTimeout(() => {
-                glyphTooltips.forEach((glyph) => {
-                    $('.' + glyph.id).attr('data-placement', 'bottom');
-                    $('.' + glyph.id).attr('title', glyph.title);
-                });
-                $('.myGlyphMarginClass').tooltip();
-            }, 500);
         }
         showMessages() {
             if (this.num_editors > 1 && this.edit_mode && !this.mobile_device)
