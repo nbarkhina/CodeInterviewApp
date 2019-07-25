@@ -1,5 +1,7 @@
 # Code Interview App
 
+[![Build status](https://neilb.visualstudio.com/Git%20Neil/_apis/build/status/Code-Interview-Site%20CI)](https://neilb.visualstudio.com/Git%20Neil/_build/latest?definitionId=11)
+
 A web app for conducting code interviews. Allows everyone to watch the candidate as they type. Also allows the code to be run in the browser to see the output. Designed to watch a single coder however includes experimental co-authoring capability. Currently only supports the Javascript language. App was written in TypeScript and .NET Core for the backend.
 
 See demo here: https://www.neilb.net/codeinterview/
