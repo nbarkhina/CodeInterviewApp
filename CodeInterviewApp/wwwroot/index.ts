@@ -328,6 +328,13 @@ export class MyApp {
         // console.log('current version: ' + this.current_version);
     }
 
+    unitTestGetMonacoContent():any {
+        var result = $.get('api/values/GetMonacoContent?password=' + this.password + '&id=' + this.id 
+            + '&is_editing=' + this.edit_mode + '&line_number=' + this.editor.getPosition().lineNumber
+            + '&name=' + this.name);
+        return result;
+    }
+
     async getMonacoContent() {
         // console.log('get content');
         

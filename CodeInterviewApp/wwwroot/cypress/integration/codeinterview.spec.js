@@ -82,4 +82,35 @@ context('Code Interview App Tests', () => {
         
     })
 
+    it('Test Backend',() => {
+        //give it 30 seconds to load because it just published a new version
+        cy.visit('https://www.neilb.net/codeinterview/');
+        cy.wait(5000);
+
+        cy.get('#txtName').type('John Backend');
+        cy.wait(2000);
+        cy.get('.btn-primary').eq(2).click();
+        cy.wait(2000);
+
+        //make editor
+        cy.get('.form-check-input').click();
+        cy.wait(2000);
+
+        //set content
+        cy.window().then((win) => {
+            var result = win.myApp.editor.setValue('Unit Testing Backend');
+        });
+        cy.wait(15000); //give it time to update the backend
+
+        cy.window().then((win) => {
+            var result = win.myApp.unitTestGetMonacoContent().then((content)=>{
+                console.log('complete',content);
+                console.log('complete',content.content);
+                expect(content.content).to.equals(`Unit Testing Backend`);
+            })
+        });
+        cy.wait(5000);
+        
+    })
+
 })

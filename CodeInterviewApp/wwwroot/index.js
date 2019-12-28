@@ -266,6 +266,12 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
                 this.show_warning = false;
             // console.log('current version: ' + this.current_version);
         }
+        unitTestGetMonacoContent() {
+            var result = $.get('api/values/GetMonacoContent?password=' + this.password + '&id=' + this.id
+                + '&is_editing=' + this.edit_mode + '&line_number=' + this.editor.getPosition().lineNumber
+                + '&name=' + this.name);
+            return result;
+        }
         getMonacoContent() {
             return __awaiter(this, void 0, void 0, function* () {
                 // console.log('get content');
