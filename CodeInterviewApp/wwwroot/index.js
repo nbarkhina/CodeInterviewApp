@@ -33,6 +33,7 @@ define(["require", "exports", "./merger", "./models/MonacoContent"], function (r
             this.update_interval = 0;
             this.current_version = 0;
             this.users = [];
+            this.MergerRef = merger_1.Merger;
             //mobile device support
             this.mobile_device = false;
             this.decorations = [];

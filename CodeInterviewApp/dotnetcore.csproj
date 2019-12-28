@@ -10,5 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="wwwroot\node_modules\monaco-editor\min\**" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="wwwroot\cypress\**">
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 </Project>

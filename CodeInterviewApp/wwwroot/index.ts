@@ -30,6 +30,7 @@ export class MyApp {
     update_interval:number = 0;
     current_version:number = 0;
     users:User[] = [];
+    MergerRef:Merger = Merger;
 
     //mobile device support
     mobile_device=false;
@@ -42,7 +43,6 @@ export class MyApp {
         this.calculateInitialHeight();
         this.detectMobileDevice();
         this.setHeight();
-        
 
         require(['vs/editor/editor.main'], function () {
 

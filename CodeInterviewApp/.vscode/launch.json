@@ -10,14 +10,12 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/CodeInterviewApp/bin/Debug/netcoreapp2.2/dotnetcore.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.2/dotnetcore.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/CodeInterviewApp",
+            "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
-            // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"                
+            "launchBrowser": {
+                "enabled": true
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
@@ -37,7 +35,7 @@
             "request": "attach",
             "name": "Attach to Chrome",
             "port": 9222,
-            "webRoot": "${workspaceFolder}\\CodeInterviewApp\\wwwroot"
+            "webRoot": "${workspaceFolder}\\wwwroot"
         }
     ]
 }
