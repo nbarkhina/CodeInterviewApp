@@ -27,7 +27,11 @@ See demo here: https://www.neilb.net/codeinterview/
 
 # Unit Tests
 - cd into the CodeInterviewApp.Tests folder
-- run dotnet test
+- run `dotnet test`
+- to run the ux unit tests cd into CodeInterviewApp\wwwroot
+- run `node .\node_modules\cypress\bin\cypress open`
+- watch e2e video at
+  - https://www.neilb.net/codeinterview/videos/codeinterview.spec.js.mp4
 
 # Dotnet Core Commands Reference
 
