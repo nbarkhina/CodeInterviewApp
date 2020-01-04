@@ -8,11 +8,15 @@ context('Code Interview App Tests', () => {
     // beforeEach('Login and enter name', () => {
     // })
 
+    var url = 'https://www.neilb.net/codeinterview/';
+    // var url = 'https://localhost:5001/index.html';
+    var initialLoad = 30000;
+
 
     it('UX Unit Tests', () => {
         //give it 30 seconds to load because it just published a new version
-        cy.visit('https://www.neilb.net/codeinterview/');
-        cy.wait(30000);
+        cy.visit(url);
+        cy.wait(initialLoad);
 
         cy.get('#txtName').type('John');
         cy.wait(2000);
@@ -66,7 +70,7 @@ context('Code Interview App Tests', () => {
         cy.viewport('iphone-6');
 
         //give it 30 seconds to load because it just published a new version
-        cy.visit('https://www.neilb.net/codeinterview/');
+        cy.visit(url);
         cy.wait(5000);
 
         cy.get('#txtName').type('John iPhone');
@@ -84,7 +88,7 @@ context('Code Interview App Tests', () => {
 
     it('Test Backend',() => {
         //give it 30 seconds to load because it just published a new version
-        cy.visit('https://www.neilb.net/codeinterview/');
+        cy.visit(url);
         cy.wait(5000);
 
         cy.get('#txtName').type('John Backend');
@@ -102,14 +106,17 @@ context('Code Interview App Tests', () => {
         });
         cy.wait(15000); //give it time to update the backend
 
+        var assertion = null
         cy.window().then((win) => {
             var result = win.myApp.unitTestGetMonacoContent().then((content)=>{
                 console.log('complete',content);
                 console.log('complete',content.content);
-                expect(content.content).to.equals(`Unit Testing Backend`);
+                assertion = content.content == `Unit Testing Backend`;
             })
         });
-        cy.wait(5000);
+        cy.wait(5000).then(()=>{
+            expect(assertion).to.equals(true);
+        });
         
     })
 
