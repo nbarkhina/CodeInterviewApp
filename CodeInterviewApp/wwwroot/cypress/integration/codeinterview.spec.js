@@ -113,11 +113,18 @@ context('Code Interview App Tests', () => {
                 console.log('complete',content.content);
                 assertion = content.content == `Unit Testing Backend`;
             })
-        });
-        cy.wait(5000).then(()=>{
+        }).then(()=>{
+            cy.wait(5000);
+        }).then(()=>{
             expect(assertion).to.equals(true);
-        });
-        
+        })
+
+        cy.get('.btn-primary').eq(1).click();
+        cy.wait(2000);
+        cy.get('div').should('contain.text','SyntaxError');
+        cy.wait(2000);
+
+            
     })
 
 })
